@@ -10,7 +10,7 @@ class Position {
 
     constructor(text: String) {
         this.text = text
-        pos = 1
+        pos = 0
         line = pos
         index = 0
     }
@@ -29,17 +29,17 @@ class Position {
     val isEOF: Boolean
         get() = index == text.length
 
-    val code: Int
-        get() = if (isEOF) -1 else text.codePointAt(index)
+    val char: Char
+        get() = if (isEOF) (-1).toChar() else text.codePointAt(index).toChar()
 
     val isWhitespace: Boolean
-        get() = !isEOF && Character.isWhitespace(code)
+        get() = !isEOF && Character.isWhitespace(char)
 
-    val isDecimalDigit: Boolean
-        get() = !isEOF && text[index] >= '0' && text[index] <= '9'
+    val isDigit: Boolean
+        get() = !isEOF && text[index].isDigit()
 
     val isLetter: Boolean
-        get() = !isEOF && Character.isLetter(code)
+        get() = !isEOF && Character.isLetter(char)
 
     val isNewLine: Boolean
         get() {
@@ -51,13 +51,13 @@ class Position {
             } else text[index] == '\n'
         }
 
-    operator fun inc(): Position {
+    fun next(): Position {
         val p = Position(this)
         if (!p.isEOF) {
             if (p.isNewLine) {
                 if (p.text[p.index] == '\r') p.index++
                 p.line++
-                p.pos = 1
+                p.pos = 0
             } else {
                 if (Character.isHighSurrogate(p.text[p.index])) p.index++
                 p.pos++
@@ -65,5 +65,9 @@ class Position {
             p.index++
         }
         return p
+    }
+
+    operator fun inc(): Position {
+        return next()
     }
 }
