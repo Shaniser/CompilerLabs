@@ -1,6 +1,5 @@
 import java.nio.file.Files
 import java.nio.file.Paths
-import java.util.*
 
 
 fun main(args: Array<String>) {
@@ -10,7 +9,7 @@ fun main(args: Array<String>) {
     println(program)
     println()
     val analyzer = Analyzer(program, compiler)
-    println("TOKENS:")
+    println("${"-".repeat(10)}TOKENS${"-".repeat(10)}")
     while (true) {
         val token: Token = analyzer.nextToken()
         if (token.tag != Tag.END) {
@@ -34,7 +33,7 @@ fun main(args: Array<String>) {
         }
     }
     if (compiler.errors()) {
-        println("MESSAGES:")
+        println("${"-".repeat(10)}DEBUG${"-".repeat(10)}")
         compiler.outputMessages()
     }
 }

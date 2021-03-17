@@ -16,7 +16,7 @@ class Analyzer(
                 else -> null
             }
             if (token == null || token.tag == Tag.UNKNOWN) {
-                if (!isError) compiler.addOutput(true, currentPos, "Token: unrecognized token")
+                if (!isError) compiler.addOutput(true, currentPos, "Unrecognized token")
                 isError = true
                 currentPos++
             } else {
