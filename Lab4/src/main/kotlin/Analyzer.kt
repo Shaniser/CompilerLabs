@@ -1,5 +1,5 @@
 class Analyzer(
-    val program: String,
+    program: String,
     private val compiler: Compiler
 ) {
     private var currentPos: Position
@@ -8,11 +8,11 @@ class Analyzer(
         var isError = false
         while (!currentPos.isEOF) {
             while (currentPos.isWhitespace) currentPos++
+            if (currentPos.isEOF) break
 
-            val token: Token? = when {
-                currentPos.char == '/' -> readComment(currentPos)
-                currentPos.isLetter -> readKeyWordOrIdent(currentPos)
-                currentPos.isDigit -> readNumber(currentPos)
+            val token: Token? = when(currentPos.char) {
+                '/' -> readComment(currentPos)
+                'S','E','N','W' -> readCoord(currentPos)
                 else -> null
             }
             if (token == null || token.tag == Tag.UNKNOWN) {
@@ -40,31 +40,85 @@ class Analyzer(
         return Token.Comment(sb.toString(), cur, p)
     }
 
-    private fun readKeyWordOrIdent(cur: Position): Token? {
+    private fun readCoord(cur: Position): Token? {
         var p = Position(cur)
         val sb = StringBuilder()
+        sb.append((p++).char)
+        if (!p.isDigit) return null
+        val numbers = StringBuilder()
         while (true) {
-            sb.append(p.char)
+            numbers.append(p.char)
             val next = p.next()
-            if (next.isDigit || next.isLetter) {
+            if (next.isDigit) {
                 p++
-            } else return when {
-                Token.KeyWord.keywords.contains(sb.toString()) -> Token.KeyWord(sb.toString(), cur, p)
-                p.char == cur.char -> Token.Ident(sb.toString(), cur, p)
-                else -> null
-            }
+            } else break
         }
+        val numbersOrNull = numbers.toString().toIntOrNull()
+        if (numbersOrNull == null || numbersOrNull > 180) return null
+        sb.append(numbers)
+
+        val tail = when((++p).char) {
+            '.' -> {
+                sb.append('.')
+                if (!(++p).isDigit) return null
+                while (true) {
+                    sb.append(p.char)
+                    val next = p.next()
+                    if (next.isDigit) {
+                        p++
+                    } else break
+                }
+                ""
+            }
+            'D' -> {
+                sb.append('D')
+                if (p.next().isDigit) {
+                    readMinutesAndSeconds(p.next()).let {
+                        if (it == null) {
+                            ""
+                        } else {
+                            (it as Token.Unknown).value
+                        }
+                    }
+                } else ""
+            }
+            else -> null
+        }
+        return if (tail != null) {
+            Token.Coord(sb.append(tail).toString(), cur, p + tail.length)
+        } else null
     }
 
-    private fun readNumber(cur: Position): Token {
+    private fun readMinutesAndSeconds(cur: Position): Token? {
         var p = Position(cur)
-        val sb = StringBuilder()
+        val minutesSb = StringBuilder()
         while (true) {
-            sb.append(p.char)
+            minutesSb.append(p.char)
             val next = p.next()
-            if (next.isDigit || next.char in 'A'..'F' || next.char in 'a'..'f') p++
-            else return Token.Number(sb.toString(), cur, p)
+            if (next.isDigit) {
+                p++
+            } else break
         }
+        val minutesOrNull = minutesSb.toString().toIntOrNull()
+        if (minutesOrNull == null || minutesOrNull > 59 || (++p).char != '\'') return null
+        minutesSb.append((p++).char)
+
+        if (p.isDigit) {
+            val secondsSb = StringBuilder()
+            while (true) {
+                secondsSb.append(p.char)
+                val next = p.next()
+                if (next.isDigit) {
+                    p++
+                } else break
+            }
+
+            val secondsOrNull = secondsSb.toString().toIntOrNull()
+            if (secondsOrNull == null || secondsOrNull > 59 || (++p).char != '\"') return null
+            secondsSb.append(p.char)
+            minutesSb.append(secondsSb)
+        } else return null
+        return Token.Unknown(Tag.UNKNOWN, cur, p, minutesSb.toString())
     }
 
     init {

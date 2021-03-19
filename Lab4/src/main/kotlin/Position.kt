@@ -27,7 +27,7 @@ class Position {
     }
 
     val isEOF: Boolean
-        get() = index == text.length
+        get() = index >= text.length
 
     val char: Char
         get() = if (isEOF) (-1).toChar() else text.codePointAt(index).toChar()
@@ -69,5 +69,13 @@ class Position {
 
     operator fun inc(): Position {
         return next()
+    }
+
+    operator fun plus(n: Int): Position {
+        var p = Position(this)
+        for (i in 0 until n) {
+            p = p.next()
+        }
+        return p
     }
 }

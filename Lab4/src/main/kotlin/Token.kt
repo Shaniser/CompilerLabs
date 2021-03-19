@@ -9,7 +9,7 @@ open class Token(
         return coords.toString()
     }
 
-    class Unknown(tag: Tag, starting: Position, following: Position) :
+    class Unknown(tag: Tag, starting: Position, following: Position, public val value: String = "") :
         Token(tag, starting, following)
 
     class Comment(public val value: String, starting: Position, following: Position) :
@@ -19,29 +19,10 @@ open class Token(
         }
     }
 
-    class Ident(public val value: String, starting: Position, following: Position) :
-        Token(Tag.IDENT, starting, following) {
+    public class Coord(public val value: String, starting: Position, following: Position) :
+        Token(Tag.COORD, starting, following) {
         override fun toString(): String {
-            return "IDENT ${super.toString()}: $value"
-        }
-    }
-
-    class Number(public val value: String, starting: Position, following: Position) :
-        Token(Tag.NUMBER, starting, following) {
-        override fun toString(): String {
-            return "NUMBER ${super.toString()}: $value"
-        }
-    }
-
-    class KeyWord(public val value: String, starting: Position, following: Position) :
-        Token(Tag.KEYWORD, starting, following) {
-        companion object {
-            val keywords = arrayListOf(
-                "qeq", "xx", "xxx"
-            )
-        }
-        override fun toString(): String {
-            return "KEYWORD ${super.toString()}: $value"
+            return "COORD ${super.toString()}: $value"
         }
     }
 }
