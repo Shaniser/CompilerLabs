@@ -1,0 +1,50 @@
+digraph {
+    Start_state[shape=circle]
+    Space[shape=doublecircle]
+    Space -> Space[label="_,\\n,\\t"]
+    
+    Num[shape=doublecircle]
+    Num -> Num[label="Digit"]
+    
+    Ident[shape=doublecircle]
+    Ident -> Ident[label="Letter/Digit"]
+    
+    Ident1[shape=doublecircle]
+    Ident2[shape=doublecircle]
+    Ident3[shape=doublecircle]
+    Ident4[shape=doublecircle]
+    Keyword[shape=doublecircle]
+    
+    OperationOrStr[shape=circle]
+    StrOrError[shape=circle]
+    StrOrError -> StrOrError[label="Letter/Digit\\)"]
+    
+    Error[shape=doublecircle]
+    String[shape=doublecircle]
+    
+    Operation[shape=doublecircle]
+
+    Start_state -> Space[label="_,\\n,\\t"]
+    Start_state -> Num[label="Digit"]
+    Start_state -> Ident[label="Letter/Digit\\{u}"]
+    Start_state -> Ident1[label="u"]
+    Start_state -> Ident3[label="s"]
+    Start_state -> OperationOrStr[label="("]
+    
+    Ident1 -> Ident[label="Letter/Digit\\{n}"]
+    Ident2 -> Ident[label="Letter/Digit\\{s}"]
+    Ident3 -> Ident[label="Letter/Digit\\{e}"]
+    Ident4 -> Ident[label="Letter/Digit\\{t}"]
+    
+    Ident1 -> Ident2[label="n"]
+    Ident2 -> Ident3[label="s"]
+    Ident3 -> Ident4[label="e"]
+    Ident4 -> Keyword[label="t"]
+    
+    Keyword -> Ident[label="Letter/Digit"]
+    
+    OperationOrStr -> StrOrError[label="Letter/Digit\\)"]
+    OperationOrStr -> Operation[label=")"]
+    StrOrError -> Error[label="(,\\n"]
+    StrOrError -> String[label=")"]
+}
